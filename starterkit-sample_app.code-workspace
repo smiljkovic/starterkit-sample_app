@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "starterkit-sample_app-1",
+			"path": "../starterkit-sample_app-1"
+		}
+	],
+	"settings": {}
+}
