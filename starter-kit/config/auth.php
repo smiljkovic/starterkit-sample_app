@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+'api' => [
+            'driver' => 'vtiger',
+            'provider' => 'users',
+            'hash' => false,
+        ],
     ],
 
     /*

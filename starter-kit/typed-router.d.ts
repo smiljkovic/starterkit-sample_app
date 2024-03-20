@@ -41,8 +41,24 @@ declare module 'vue-router/auto/routes' {
   export interface RouteNamedMap {
     'root': RouteRecordInfo<'root', '/', Record<never, never>, Record<never, never>>,
     '$error': RouteRecordInfo<'$error', '/:error(.*)', { error: ParamValue<true> }, { error: ParamValue<false> }>,
+    'apps-billing-billing-history-table': RouteRecordInfo<'apps-billing-billing-history-table', '/apps/billing/BillingHistoryTable', Record<never, never>, Record<never, never>>,
+    'apps-billing-list': RouteRecordInfo<'apps-billing-list', '/apps/billing/list', Record<never, never>, Record<never, never>>,
+    'apps-helpdesk-list': RouteRecordInfo<'apps-helpdesk-list', '/apps/helpdesk/list', Record<never, never>, Record<never, never>>,
+    'apps-invoice-add': RouteRecordInfo<'apps-invoice-add', '/apps/invoice/add', Record<never, never>, Record<never, never>>,
+    'apps-invoice-edit-id': RouteRecordInfo<'apps-invoice-edit-id', '/apps/invoice/edit/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    'apps-invoice-list': RouteRecordInfo<'apps-invoice-list', '/apps/invoice/list', Record<never, never>, Record<never, never>>,
+    'apps-invoice-preview-id': RouteRecordInfo<'apps-invoice-preview-id', '/apps/invoice/preview/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    'apps-payment-input': RouteRecordInfo<'apps-payment-input', '/apps/payment/:input', { input: ParamValue<true> }, { input: ParamValue<false> }>,
+    'apps-products-list': RouteRecordInfo<'apps-products-list', '/apps/products/list', Record<never, never>, Record<never, never>>,
+    'apps-services-list': RouteRecordInfo<'apps-services-list', '/apps/services/list', Record<never, never>, Record<never, never>>,
+    'apps-subscriptions-list': RouteRecordInfo<'apps-subscriptions-list', '/apps/subscriptions/list', Record<never, never>, Record<never, never>>,
+    'fleet': RouteRecordInfo<'fleet', '/fleet', Record<never, never>, Record<never, never>>,
+    'forgot-password': RouteRecordInfo<'forgot-password', '/forgot-password', Record<never, never>, Record<never, never>>,
+    'helpdesk': RouteRecordInfo<'helpdesk', '/Helpdesk', Record<never, never>, Record<never, never>>,
+    'index-orig': RouteRecordInfo<'index-orig', '/index-orig', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
-    'second-page': RouteRecordInfo<'second-page', '/second-page', Record<never, never>, Record<never, never>>,
+    'login-orig': RouteRecordInfo<'login-orig', '/login_orig', Record<never, never>, Record<never, never>>,
+    'register': RouteRecordInfo<'register', '/register', Record<never, never>, Record<never, never>>,
   }
 }
 

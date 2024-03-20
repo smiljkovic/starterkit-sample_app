@@ -116,29 +116,16 @@ const pricingPlans = [
   <!-- 👉 Annual and monthly price toggler -->
 
   <div class="d-flex align-center justify-center mx-auto my-10">
-    <VLabel
-      for="pricing-plan-toggle"
-      class="me-2"
-    >
+    <VLabel for="pricing-plan-toggle" class="me-2">
       Monthly
     </VLabel>
 
     <div class="position-relative">
-      <VSwitch
-        id="pricing-plan-toggle"
-        v-model="annualMonthlyPlanPriceToggler"
-        label="Annual"
-      />
+      <VSwitch id="pricing-plan-toggle" v-model="annualMonthlyPlanPriceToggler" label="Annual" />
 
       <div class="save-upto-chip position-absolute align-center d-none d-md-flex gap-1">
-        <VIcon
-          icon="tabler-corner-left-down"
-          class="flip-in-rtl mt-2"
-        />
-        <VChip
-          label
-          color="primary"
-        >
+        <VIcon icon="tabler-corner-left-down" class="flip-in-rtl mt-2" />
+        <VChip label color="primary">
           Save up to 10%
         </VChip>
       </div>
@@ -147,40 +134,19 @@ const pricingPlans = [
 
   <!-- SECTION pricing plans -->
   <VRow>
-    <VCol
-      v-for="plan in pricingPlans"
-      :key="plan.logo"
-      v-bind="props"
-      cols="12"
-    >
+    <VCol v-for="plan in pricingPlans" :key="plan.logo" v-bind="props" cols="12">
       <!-- 👉  Card -->
-      <VCard
-        flat
-        border
-        :class="plan.isPopular ? 'border-primary border-opacity-100' : ''"
-      >
-        <VCardText
-          style="block-size: 4.125rem;"
-          class="text-end"
-        >
+      <VCard flat border :class="plan.isPopular ? 'border-primary border-opacity-100' : ''">
+        <VCardText style="block-size: 4.125rem;" class="text-end">
           <!-- 👉 Popular -->
-          <VChip
-            v-show="plan.isPopular"
-            label
-            color="primary"
-            size="small"
-          >
+          <VChip v-show="plan.isPopular" label color="primary" size="small">
             Popular
           </VChip>
         </VCardText>
 
         <!-- 👉 Plan logo -->
         <VCardText>
-          <VImg
-            :height="140"
-            :src="plan.logo"
-            class="mx-auto mb-5"
-          />
+          <VImg :height="140" :src="plan.logo" class="mx-auto mb-5" />
 
           <!-- 👉 Plan name -->
           <h3 class="text-h3 mb-1 text-center">
@@ -202,10 +168,8 @@ const pricingPlans = [
             </div>
 
             <!-- 👉 Annual Price -->
-            <span
-              v-show="annualMonthlyPlanPriceToggler"
-              class="annual-price-text position-absolute text-sm text-disabled"
-            >
+            <span v-show="annualMonthlyPlanPriceToggler"
+              class="annual-price-text position-absolute text-sm text-disabled">
               {{ plan.yearlyPrice === 0 ? 'free' : `USD ${plan.yearlyPrice}/Year` }}
             </span>
           </div>
@@ -213,15 +177,9 @@ const pricingPlans = [
           <!-- 👉 Plan features -->
 
           <VList class="card-list mb-4">
-            <VListItem
-              v-for="feature in plan.features"
-              :key="feature"
-            >
+            <VListItem v-for="feature in plan.features" :key="feature">
               <template #prepend>
-                <VIcon
-                  :size="14"
-                  icon="tabler-circle"
-                />
+                <VIcon :size="14" icon="tabler-circle" />
               </template>
 
               <VListItemTitle>
@@ -231,12 +189,8 @@ const pricingPlans = [
           </VList>
 
           <!-- 👉 Plan actions -->
-          <VBtn
-            block
-            :color="plan.current ? 'success' : 'primary'"
-            :variant="plan.isPopular ? 'elevated' : 'tonal'"
-            :to="{ name: 'front-pages-payment' }"
-          >
+          <VBtn block :color="plan.current ? 'success' : 'primary'" :variant="plan.isPopular ? 'elevated' : 'tonal'"
+            :to="{ name: 'root' }">
             {{ plan.yearlyPrice === 0 ? 'Your Current Plan' : 'Upgrade' }}
           </VBtn>
         </VCardText>
@@ -256,7 +210,7 @@ const pricingPlans = [
   inset-inline-end: -7rem;
 }
 
-.annual-price-text{
+.annual-price-text {
   inset-block-end: 10%;
   inset-inline-start: 50%;
   transform: translateX(-50%);

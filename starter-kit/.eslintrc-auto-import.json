@@ -349,6 +349,11 @@
     "watchThrottled": true,
     "watchTriggerable": true,
     "watchWithFilter": true,
-    "whenever": true
+    "whenever": true,
+    "getCreditCardNameByNumber": true,
+    "isExpirationDateValid": true,
+    "isSecurityCodeValid": true,
+    "isValid": true,
+    "useAbility": true
   }
 }

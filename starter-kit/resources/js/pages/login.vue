@@ -1,3 +1,4 @@
+<!-- ❗Errors in the form are set on line 60 -->
 <script setup>
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
@@ -9,18 +10,136 @@ import authV2MaskDark from '@images/pages/misc-mask-dark.png'
 import authV2MaskLight from '@images/pages/misc-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { VForm } from 'vuetify/components/VForm'
 
-definePage({ meta: { layout: 'blank' } })
+const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
+const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
-const form = ref({
-  email: '',
-  password: '',
-  remember: false,
+definePage({
+  meta: {
+    layout: 'blank',
+    unauthenticatedOnly: true,
+  },
 })
 
 const isPasswordVisible = ref(false)
-const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
-const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
+const route = useRoute()
+const router = useRouter()
+const ability = useAbility()
+
+const errors = ref({
+  email: undefined,
+  password: undefined,
+})
+
+const refVForm = ref()
+
+const credentials = ref({
+  email: 'admin@demo.com',
+  password: 'admin',
+})
+
+const rememberMe = ref(false)
+
+let aaa = [
+  {
+    title: 'Home',
+    to: { name: 'root' },
+    icon: { icon: 'tabler-smart-home' },
+  },
+   
+]
+let bbb = [
+  {
+    title: 'Home',
+    to: { name: 'root' },
+    icon: { icon: 'tabler-smart-home' },
+    id: 'Home',
+  },
+   
+]
+
+const login = async () => {
+
+  try {
+    const res = await $api('/vtiger/login', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json", 'Authorization': 'Basic' },
+      body: { 'username': credentials.value.email, 'password': credentials.value.password },
+      onResponseError({ response }) {
+        errors.value = response._data.errors
+      },
+    })
+
+    /*REVIEW - Implement necessary fields if possible */
+    const { accessToken, userData, userAbilityRules  } =  res[0]
+    
+    useCookie('userAbilityRules').value = userAbilityRules
+    ability.update(userAbilityRules)
+    useCookie('userData').value = userData
+
+    useCookie('accessToken').value = accessToken
+    useCookie('pwd').value = credentials.value.password
+    useCookie('email').value = credentials.value.email
+
+    
+
+    const resModules = await $api('/vtiger/nav-items', {  
+      method: 'POST',
+      headers: { "Content-Type": "application/json", 'Authorization': 'Basic' },
+      body: { 'username': credentials.value.email, 'password': credentials.value.password },
+      onResponse({ response }) {
+        if (response.ok){
+          
+          /*NOTE -  - not used anymore response._data.data.forEach((value, index) => {
+            aaa.push({ 'title': value, 'to': { 'name': 'apps-'+value.toLowerCase()+'-list' }, 'icon': { 'icon': 'tabler-home' }  })
+          })
+          useCookie('userModules').value = aaa
+          */
+          const tst = Object.entries(response._data.information).slice().sort(function(a, b) {
+            const [moduleNameA, modulePrefsA] = a
+            const [moduleNameB, modulePrefsB] = b
+            
+            return modulePrefsB.order - modulePrefsA.order
+          })
+
+          Object.entries(tst).forEach(entry => {
+            const [index, value] = entry
+            const [moduleName, modulePrefs] = value
+            if (modulePrefs.uiLabel == 'Services')
+              bbb.push({ 'title': 'Fleet', 'to': { 'name': 'fleet' }, 'icon': { 'icon': 'tabler-home' }, 'id': modulePrefs.name })
+            else
+              bbb.push({ 'title': modulePrefs.uiLabel, 'to': { 'name': 'apps-'+modulePrefs.name.toLowerCase()+'-list' }, 'icon': { 'icon': 'tabler-home' }, 'id': modulePrefs.name })
+            
+            console.log(`name: ${modulePrefs.name}, label: ${modulePrefs.label}, uiLabel: ${modulePrefs.uiLabel}, order: ${modulePrefs.order}, create: ${modulePrefs.create}, edit: ${modulePrefs.edit}, recordvisibility: ${modulePrefs.recordvisibility}`)
+          })
+
+        }else{
+          console.error('ERROR!!!')
+        }
+        
+        useCookie('userModulesSorted').value = bbb
+      },
+    },
+    )
+
+
+    await nextTick(() => {
+      router.replace(route.query.to ? String(route.query.to) : '/')
+    })
+
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
+const onSubmit = () => {
+  refVForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      login()
+  })
+}
 </script>
 
 <template>
@@ -29,8 +148,8 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
     class="auth-wrapper bg-surface"
   >
     <VCol
-      md="8"
-      class="d-none d-md-flex"
+      lg="8"
+      class="d-none d-lg-flex"
     >
       <div class="position-relative bg-background rounded-lg w-100 ma-8 me-0">
         <div class="d-flex align-center justify-center w-100 h-100">
@@ -42,15 +161,15 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
         </div>
 
         <VImg
-          class="auth-footer-mask"
           :src="authThemeMask"
+          class="auth-footer-mask"
         />
       </div>
     </VCol>
 
     <VCol
       cols="12"
-      md="4"
+      lg="4"
       class="auth-card-v2 d-flex align-center justify-center"
     >
       <VCard
@@ -63,49 +182,71 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
             :nodes="themeConfig.app.logo"
             class="mb-6"
           />
+
           <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize">{{ themeConfig.app.title }}</span>! 👋🏻
+            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
           </h4>
           <p class="mb-0">
             Please sign-in to your account and start the adventure
           </p>
         </VCardText>
         <VCardText>
-          <VForm @submit.prevent="() => { }">
+          <VAlert
+            color="primary"
+            variant="tonal"
+          >
+            <p class="text-sm mb-2">
+              Admin Email: <strong>admin@demo.com</strong> / Pass: <strong>admin</strong>
+              Admin Email: <strong>Nikola.Smiljkovic@obloliving.com</strong> / Pass: <strong>1l6ispsa</strong>
+            </p>
+            <p class="text-sm mb-0">
+              Client Email: <strong>client@demo.com</strong> / Pass: <strong>client</strong>
+            </p>
+          </VAlert>
+        </VCardText>
+        <VCardText>
+          <VForm
+            ref="refVForm"
+            @submit.prevent="onSubmit"
+          >
             <VRow>
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.email"
-                  autofocus
+                  v-model="credentials.email"
                   label="Email"
-                  type="email"
                   placeholder="johndoe@email.com"
+                  type="email"
+                  autofocus
+                  :rules="[requiredValidator, emailValidator]"
+                  :error-messages="errors.email"
                 />
               </VCol>
 
               <!-- password -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.password"
+                  v-model="credentials.password"
                   label="Password"
                   placeholder="············"
+                  :rules="[requiredValidator]"
                   :type="isPasswordVisible ? 'text' : 'password'"
+                  :error-messages="errors.password"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
 
-                <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
+                <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-4">
                   <VCheckbox
-                    v-model="form.remember"
+                    v-model="rememberMe"
                     label="Remember me"
                   />
-                  <a
+                  <RouterLink
                     class="text-primary ms-2 mb-1"
-                    href="#"
+                    :to="{ name: 'forgot-password' }"
                   >
                     Forgot Password?
-                  </a>
+                  </RouterLink>
                 </div>
 
                 <VBtn
@@ -119,26 +260,22 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
               <!-- create account -->
               <VCol
                 cols="12"
-                class="text-center text-base"
+                class="text-center"
               >
                 <span>New on our platform?</span>
-
-                <a
+                <RouterLink
                   class="text-primary ms-2"
-                  href="#"
+                  :to="{ name: 'register' }"
                 >
                   Create an account
-                </a>
+                </RouterLink>
               </VCol>
-
               <VCol
                 cols="12"
                 class="d-flex align-center"
               >
                 <VDivider />
-
                 <span class="mx-4">or</span>
-
                 <VDivider />
               </VCol>
 

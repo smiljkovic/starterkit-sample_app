@@ -102,6 +102,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['vuetify'],
+    include: ["@fawmi/vue-google-maps", "fast-deep-equal"],
     entries: [
       './resources/js/**/*.vue',
     ],
