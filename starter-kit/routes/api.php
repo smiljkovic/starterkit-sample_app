@@ -31,6 +31,7 @@ Route::group(['prefix' => 'vtiger'], function () {
   Route::post('delete-card', [AuthController::class, 'deleteStripeCard']);
   //Route::post('invoices', [AuthController::class, 'fetchInvoicesPost']);
   Route::get('invoices', [AuthController::class, 'fetchInvoices']);
+  Route::get('locations', [AuthController::class, 'fetchLocationsWithChargers']);
   Route::get('creditcards', [AuthController::class, 'fetchCreditCards']);
   Route::get('products', [AuthController::class, 'fetchProducts']);
   Route::get('services', [AuthController::class, 'fetchServices']);

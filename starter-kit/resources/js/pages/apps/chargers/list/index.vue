@@ -1,14 +1,13 @@
-
 <script setup>
 import {
-  onMounted,
   ref,
 } from 'vue'
 
+
+import socketImg from '@images/misc/Feller_sd.png'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useDisplay } from 'vuetify'
-import socketImg from '@images/misc/Feller_sd.png'
-import { Loader } from "@googlemaps/js-api-loader"
+
 
 const { isLeftSidebarOpen } = useResponsiveLeftSidebar()
 const vuetifyDisplay = useDisplay()
@@ -31,62 +30,9 @@ const showPanel = ref([
   false,
 ])
 
-const geojson = {
-  type: 'FeatureCollection',
-  features: [
-    {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        position: {
-          lat: 45.2397,
-          lng: 19.8217,
-        },
-      },
-    },
-    {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        position: {
-          lat: 45.2397,
-          lng: 19.7,
-        },
-      },
-    },
-    {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        position: {
-          lat: 45.2397,
-          lng: 19.8,
-        },
-      },
-     },
-    // },
-    // {
-    //   type: 'Feature',
-    //   geometry: {
-    //     type: 'Point',
-    //     coordinates: [
-    //       -74.0325,
-    //       40.742992,
-    //     ],
-    //   },
-    // },
-  ],
-}
 
 const activeIndex = ref(0)
 
-const loader = new Loader({
-  apiKey: 'AIzaSyCMjvkHTt8t5bT4gxdXYOqf6CoO8YB-P0A',
-  version: 'weekly',
-})
-
-let map = ref()
-let marker = ref()
 
 
 const mapOptions = {
@@ -101,58 +47,48 @@ const mapOptions = {
   fullscreenControl: false,
 }
 
+const {
+  data: locationsData,
+  execute: fetchLocations,
+} = await useApi(createUrl('/vtiger/locations', {
+  query: {
+    'username': useCookie('email').value, 'password': useCookie('pwd').value,
 
-loader.load().then(async () => {
-  const { Map } = await google.maps.importLibrary("maps")
+    // 'pageLimit': itemsPerPage,
+    // 'page': page,
+    // 'orderBy': headerssMapping(sortBy.value),
+    // 'order': orderBy,
+    // 'q': searchQuery,
+    // 'status': selectedStatus,
+    // 'selectedRange': selectedDateRange,
+  },
+}))
 
-  map = new Map(document.getElementById("map"), mapOptions)
-
-  const { AdvancedMarkerElement } = await google.maps.importLibrary("marker")
-
-  const { PinElement }  = await google.maps.importLibrary("marker")
-
-  const pinBackground = new PinElement({
-    background: '#FBBC04',
-    borderColor: '#137333',
-  })
-
-  for (let index = 0; index < geojson.features.length; index++) {
-    // A marker with a with a URL pointing to a PNG.
-    const beachFlagImg = document.createElement('img')
-    beachFlagImg.src = socketImg
-
-    new AdvancedMarkerElement({
-      map, 
-      position: geojson.features[index].geometry.position,
-      content: beachFlagImg,
-      title: "A marker using a custom PNG Image",
+const locations = computed(() => locationsData.value.locations)
+const totalLocations = computed(() =>  locationsData.value.totalLocations)
+let markers = computed(() => {
+  let locationsArray = [{
+    initial: {
+      lat: 45.2397,
+      lng: 19.8217,
+    },
+  }]
+  
+  locationsArray.splice(0, 1)
+  for (let index = 0; index < totalLocations.value; index++) {
+    locationsArray.push({
+      'position': {
+        'lat': parseFloat(locationsData.value.locations[index].latitude),
+        'lng': parseFloat(locationsData.value.locations[index].longitude),
+      },
+      'text': locationsData.value.locations[index].locationname,
     })
   }
-    refCars.value[activeIndex.value].classList.add('marker-focus')
-
+  
+  return  locationsArray 
 })
 
-
-onMounted(() => {
-
- 
-
-// map.value = new mapboxgl.Map({
-//   container: 'mapContainer',
-//   style: 'mapbox://styles/mapbox/light-v9',
-//   center: [
-//     -73.999024,
-//     40.75249842,
-//   ],
-//   zoom: 12.25,
-// })
-// for (let index = 0; index < geojson.features.length; index++)
-//   new mapboxgl.Marker({ element: refCars.value[index] }).setLngLat(geojson.features[index].geometry.coordinates).addTo(map.value)
-// refCars.value[activeIndex.value].classList.add('marker-focus')
-// for (let index = 0; index < geojson.features.length; index++)
-//   new AdvancedMarkerElement(map, { element: refCars.value[index] }).setLngLat(geojson.features[index].geometry.coordinates).addTo(map.value)
-// refCars.value[activeIndex.value].classList.add('marker-focus')
-})
+const center = { lat: 45.2396, lng: 19.8227 }
 
 
 const vehicleTrackingData = [
@@ -182,18 +118,24 @@ const vehicleTrackingData = [
   },
 ]
 
-const flyToLocation = (geolocation, index) => {
+const flyToLocation = (lat, lon, index) => {
   activeIndex.value = index
   showPanel.value.fill(false)
   showPanel.value[index] = !showPanel.value[index]
   if (vuetifyDisplay.mdAndDown.value)
     isLeftSidebarOpen.value = false
+
   // map.value.flyTo({
   //   center: geolocation,
   //   zoom: 16,
   // })
-  map.panTo(geolocation)
-  map.setZoom(16)
+  // eslint-disable-next-line vue/no-ref-as-operand
+  gMap.panTo({
+    lat: lat,
+    lng: lon,
+  })
+  // eslint-disable-next-line vue/no-ref-as-operand
+  gMap.setZoom(16)
 
 }
 
@@ -222,7 +164,7 @@ watch(activeIndex, () => {
       >
         <VCardItem>
           <VCardTitle>
-            Fleet
+            Chargers locations
           </VCardTitle>
 
           <template #append>
@@ -242,25 +184,29 @@ watch(activeIndex, () => {
         >
           <VCardText class="pt-0">
             <div
-              v-for="(vehicle, index) in vehicleTrackingData"
+              v-for="(location, index) in locations"
               :key="index"
               class="mb-6"
             >
               <div
                 class="d-flex align-center justify-space-between cursor-pointer"
-                @click="flyToLocation(geojson.features[index].geometry.position, index)"
+                @click="flyToLocation(location.latitude, location.longitude, index)"
               >
                 <div class="d-flex gap-x-4">
                   <VAvatar
-                    icon="tabler-truck"
+                    icon="tabler-plug"
+                    color="success"
                     variant="tonal"
                   />
                   <div>
                     <div class="text-body-1 text-high-emphasis font-weight-medium">
-                      {{ vehicle.name }}
+                      {{ location.locationname }}
                     </div>
-                    <div class="text-body-1 text-disabled">
-                      {{ vehicle.location }}
+                    <div class="text-body-2 text-disabled">
+                      {{ location.locationstreet }}
+                    </div>
+                    <div class="text-body-2 text-disabled">
+                      {{ location.locationcity }}
                     </div>
                   </div>
                 </div>
@@ -273,10 +219,10 @@ watch(activeIndex, () => {
                   <div class="py-4 mb-4">
                     <div class="d-flex justify-space-between mb-2">
                       <span class="text-body-1 text-high-emphasis ">Delivery Process</span>
-                      <span class="text-body-2">{{ vehicle.progress }}%</span>
+                      <span class="text-body-2">95%</span>
                     </div>
                     <VProgressLinear
-                      :model-value="vehicle.progress"
+                      :model-value="95"
                       color="primary"
                       rounded
                       height="6"
@@ -303,7 +249,7 @@ watch(activeIndex, () => {
                           TRACKING NUMBER CREATED
                         </div>
                         <div class="app-timeline-title">
-                          {{ vehicle.driverName }}
+                          {{ location.locationname }}
                         </div>
                         <div class="app-timeline-text">
                           Sep 01, 7:53 AM
@@ -365,13 +311,36 @@ watch(activeIndex, () => {
           <VIcon icon="tabler-menu-2" />
         </IconBtn>
         <!-- 👉 Fleet map  -->
-        <div
-          id="map"
-          class="basemap">
-          <!-- <Map msg="Hello Vue 3 in CodeSandbox!" /> -->
-</div>
+        <!--
+          
+          
+        -->
+        <GMapMap
+          class="basemap"
+          :center="mapOptions.center"
+          :zoom="mapOptions.zoom"
+          :map-type-id="mapOptions.mapTypeId"
+          :options="{
+            zoomControl: true,
+            mapTypeControl: mapOptions.mapTypeControl,
+            scaleControl: true,
+            streetViewControl: mapOptions.streetViewControl,
+            rotateControl: false,
+            fullscreenControl: mapOptions.fullscreenControl,
+          }"
+        >
+          <GMapMarker
+            v-for="(m, index) in markers"
+            :key="index"
+            :position="m.position"
+            :icon="tabler-plug"
+            :clickable="true"
+            :draggable="false"
+            :visible="true"
+            @click="center = m.position"
+          />
+        </GMapMap>
         
-
         <img
           v-for="(car, index) in carImgs"
           :key="index"

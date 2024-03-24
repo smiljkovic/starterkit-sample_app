@@ -106,10 +106,13 @@ const login = async () => {
           Object.entries(tst).forEach(entry => {
             const [index, value] = entry
             const [moduleName, modulePrefs] = value
-            if (modulePrefs.uiLabel == 'Services')
-              bbb.push({ 'title': 'Fleet', 'to': { 'name': 'fleet' }, 'icon': { 'icon': 'tabler-home' }, 'id': modulePrefs.name })
-            else
-              bbb.push({ 'title': modulePrefs.uiLabel, 'to': { 'name': 'apps-'+modulePrefs.name.toLowerCase()+'-list' }, 'icon': { 'icon': 'tabler-home' }, 'id': modulePrefs.name })
+
+
+            //if (modulePrefs.uiLabel == 'Services') || (modulePrefs.uiLabel == 'Locations'))
+            // if (modulePrefs.uiLabel != 'Chargers') 
+
+            //bbb.push({ 'title': 'Fleet', 'to': { 'name': 'fleet' }, 'icon': { 'icon': 'tabler-home' }, 'id': modulePrefs.name })
+            bbb.push({ 'title': modulePrefs.uiLabel, 'to': { 'name': 'apps-'+modulePrefs.name.toLowerCase()+'-list' }, 'icon': { 'icon': 'tabler-home' }, 'id': modulePrefs.name })
             
             console.log(`name: ${modulePrefs.name}, label: ${modulePrefs.label}, uiLabel: ${modulePrefs.uiLabel}, order: ${modulePrefs.order}, create: ${modulePrefs.create}, edit: ${modulePrefs.edit}, recordvisibility: ${modulePrefs.recordvisibility}`)
           })

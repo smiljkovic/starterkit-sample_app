@@ -267,6 +267,112 @@ class AuthController extends Controller
     }
   }
 
+  public function fetchLocations(Request $request)
+  {
+    $params = array(
+      '_operation' => 'FetchRecords',
+      'module' => 'Locations',
+      'moduleLabel' => 'Locations',
+      'username' => $request->username,
+      'password' => $request->password,
+      'mode' => 'all',
+      // 'status' => $request->status,
+      // 'selectedRange' => $request->selectedRange,
+      // 'pageLimit' =>  $request->pageLimit,
+      // 'orderBy' => $request->orderBy,
+      // 'page' => $request->page - 1,
+      // 'order' => $request->order,
+      // 'fields' => ($request->status == null ? '' : json_encode(['invoicestatus' => $request->status,])),
+    );
+
+    Log::info('$params:' . json_encode($params));
+
+    $fetchLocationsResponse = json_decode(self::api($params), true);
+
+    if (isset($fetchLocationsResponse['success']) &&  $fetchLocationsResponse['success'] == 'true') {
+      $totalLocations = $fetchLocationsResponse['result']['count'];
+      $locationsArray = $fetchLocationsResponse['result'];
+      unset($locationsArray['count']);
+      return response()->json(
+        [
+          'locations' => $locationsArray,
+          'totalLocations' => $totalLocations
+        ],
+        200,
+      );
+    } else {
+      return response()->json([
+        'errors' => 'Fetch locations failed!',
+      ], 401);
+    }
+  }
+
+public function fetchLocationsWithChargers(Request $request)
+  {
+    $params = array(
+      '_operation' => 'FetchRecords',
+      'module' => 'Locations',
+      'moduleLabel' => 'Locations',
+      'username' => $request->username,
+      'password' => $request->password,
+      'mode' => 'all',
+    );
+
+    Log::info('$params:' . json_encode($params));
+
+    $fetchLocationsResponse = json_decode(self::api($params), true);
+
+    if (isset($fetchLocationsResponse['success']) &&  $fetchLocationsResponse['success'] == 'true') {
+      $totalLocations = $fetchLocationsResponse['result']['count'];
+      $locationsArray = $fetchLocationsResponse['result'];
+      unset($locationsArray['count']);
+      
+      foreach ($locationsArray as $key => &$value) {
+        
+        //Log::info('$value[description]: ' . json_encode($value['description'])); //FIXME - Remove all these logs
+        if (isset($value['id'])) {
+          $chargersParams = array(
+            '_operation' => 'FetchRelatedRecords',
+            'module' => 'Locations',
+            'label' => 'Locations',
+            'username' => $request->username,
+            'password' => $request->password,
+            'relatedModule' => 'Chargers',
+            'relatedModuleLabel' => 'Chargers',
+            'recordId' => $value['id'],
+          );
+          Log::info('$params:' . json_encode($chargersParams));
+
+          $fetchChargersResponse = json_decode(self::api($chargersParams), true);
+          if (isset($fetchChargersResponse['success']) &&  $fetchChargersResponse['success'] == 'true') {
+            $availableChargers = 0;  
+            $chargersArray = $fetchChargersResponse['result'];
+            foreach ($chargersArray as $charger) {
+                if ($charger['chargerstate'] == 'Available')
+                $availableChargers++;
+            }
+            $locationsArray[$key]['chargers'] = $chargersArray;
+            $locationsArray[$key]['availablechargers'] = $availableChargers;
+          }
+        }
+      }
+      
+      return response()->json(
+        [
+          'locations' => $locationsArray,
+          'totalLocations' => $totalLocations
+        ],
+        200,
+      );
+    } else {
+      return response()->json([
+        'errors' => 'Fetch locations failed!',
+      ], 401);
+    }
+  }
+
+
+
   public function fetchCreditCards(Request $request)
   {
     $params = array(
